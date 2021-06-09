@@ -84,11 +84,19 @@ def add_to_department(employee_id,department_id):
         print(e)
         connection.rollback()  
           
-# add_to_department("9","3")
+
 
 # Option 5 Module 
+def add_department(department_name,floor):
+    cursor.execute(f"INSERT INTO Department(name,floor) VALUES ('{department_name}','{floor}');")
+    try:
+            connection.commit()
+            print(f"Department added successfully: Name: {department_name}, floor {floor}")
+    except sqlite3.IntegrityError as e:
+        print(e)
+        connection.rollback()
 
-
+# add_department("hohoho","2")
 # Option 6 Module 
 
 
@@ -147,8 +155,11 @@ def main():
  
         # Choice 5            
         while choice == "5":
-            print("Do Something 5")
-            if input('Back to main menu. Press (0) :  ') == "0":
+            print("Please Type Department Information:")
+            dept_name = input("Department Name: ")
+            floor = input("Floor:  ")
+            add_department(dept_name,floor)
+            if input('Back to main menu. Press (0) or Type anything to add more deaprtment :  ') == "0":
                 break
  
         # Choice 6            
