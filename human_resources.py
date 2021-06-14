@@ -13,7 +13,15 @@ def menu():
     print("6. Add New Department and Employee")
     print("7. Find Employee")
     print("8. Quit")
+    print("====================================")
 
+# Menu Module 7
+def menu7():
+    print("Please choose options below: ")
+    print("1. Find by name")
+    print("2. Find by position")
+    print("3. Find by employee id")
+  
 # Option 1 Module    
 def show_employees():
     dash = '-' * 100
@@ -84,8 +92,6 @@ def add_to_department(employee_id,department_id):
         print(e)
         connection.rollback()  
           
-
-
 # Option 5 Module 
 def add_department(department_name,floor):
     cursor.execute(f"INSERT INTO Department(name,floor) VALUES ('{department_name}','{floor}');")
@@ -96,12 +102,42 @@ def add_department(department_name,floor):
         print(e)
         connection.rollback()
 
-# add_department("hohoho","2")
 # Option 6 Module 
-
-
+def link_employee(name, position, age, address,department_id,department_name):
+    cursor.execute(f"INSERT INTO Employee(name, position, age, address,department_id) VALUES ('{name}','{position}','{age}','{address}','{department_id}');")
+    try:
+            connection.commit()
+            print(f"Employee added successfully to {department_name}: Name: {name}, Position: {position}, age: {age}, address: {address}")
+    except sqlite3.IntegrityError as e:
+        print(e)
+        connection.rollback()
 # Option 7 Module 
+# Instead of creating 3 find modules. Added 3 values: find_value,item_index,type_of_value
+def find(find_value,item_index,type_of_value):
+    dash = '-' * 100
+    cursor.execute("SELECT e.id as Employee_ID, e.name as Name, e.position as Position, e.age as Age, e.address as Address, d.name as Department FROM Employee as e, Department as d WHERE e.department_id = d.id;")
+    header = [description[0] for description in cursor.description]
+    result = cursor.fetchall()
+    
+    # Employee Header
+    ajustment = "{:^15} {: ^25} {:<15} {:<5} {:^15} {:<15}"
+    print (ajustment.format(header[0],header[1],header[2],header[3],header[4],header[5]))
+    print(dash)
+    
+    # Find value is int
+    if type_of_value == "int":
+        for item in result:
+            if find_value == item[item_index]:
+                Employee_ID, Name, Position, Age, Address, Department = item
+                print (ajustment.format( Employee_ID, Name, Position, Age, Address, Department))
+    # Find value is string
+    else:
+        for item in result:
+            if find_value in item[item_index]:
+                Employee_ID, Name, Position, Age, Address, Department = item
+                print (ajustment.format( Employee_ID, Name, Position, Age, Address, Department))
 
+# main module
 def main():
     while True:
         menu()
@@ -164,14 +200,46 @@ def main():
  
         # Choice 6            
         while choice == "6":
-            print("Do Something 6")
+            print("Please Type Department Information:")
+            dept_name = input("Department Name: ")
+            floor = input("Floor:  ")
+            add_department(dept_name,floor)
+            
+            # find this department id
+            cursor.execute(f"SELECT id FROM Department as d where d.name = '{dept_name}' and d.floor = '{floor}';")
+            this_department = cursor.fetchall()
+            dept_id = this_department[0][0]
+            
+            # link new employee
+            print(f"Please add employee to {dept_name}")
+            name = input("Name: ")
+            position = input("Position: ")
+            age = input("Age: ")
+            address = input("Address: ")
+            link_employee(name,position,age,address,dept_id,dept_name)
             if input('Back to main menu. Press (0) :  ') == "0":
                 break
   
         # Choice 7            
         while choice == "7":
-            print("Do Something 7")
-            if input('Back to main menu. Press (0) :  ') == "0":
+            menu7()
+            option7_choice = input("Please input choice: ")
+            while option7_choice != "1" and option7_choice != "2" and option7_choice != "3":
+                menu7()
+                option7_choice = input("Wrong choice. Please choose from ( 1 to 3 ):   ")
+            if option7_choice == "1":
+                name = input("Please input employee name: ")
+                index = 1
+                find(name,index,"string")
+            if option7_choice == "2":
+                position = input("Please input employee position: ")
+                index = 2
+                find(position,index,"srting")
+            if option7_choice == "3":
+                id = int(input("Please input employee id: "))
+                index = 0
+                find(id,index,"int")
+            if input('Press ( 0 ) to main menu or anykey to find again:  ') == "0":
                 break
   
         # Choice 8
